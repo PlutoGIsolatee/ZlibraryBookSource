@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EPUB reader demo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/epub.js/0.2.15/epub.js" integrity="sha512-pPqnBJwWQmce2lRd/7TxP3t0anQBNVTfjCDbA5eeK/MaUrBDCRBNenGfxGwBPnYAnPzjAxg6PbKJ9kkA9JAkCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+    <script>
+        /**
+         * @param {string} base64
+         * @returns {Uint8Array}
+         */
+        function base64ToUint8Array(base64) {
+            const binaryString = atob(base64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes;
+        }
+
+        function loadBook() {
+            const epubBase64 = java.get()
+        }
+    </script>
+</body>
+</html>
