@@ -179,7 +179,7 @@
             "layout_flexShrink": 1,
             "layout_alignSelf": "auto",
             "layout_flexBasisPercent": -1,
-            "layout_wrapBefore": false
+            "layout_wrapBefore": true
         }
     },
     {
