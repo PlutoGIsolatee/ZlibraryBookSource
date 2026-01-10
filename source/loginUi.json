@@ -136,6 +136,16 @@
         }
     },
     {
+        "name": "accurate",
+        "viewName": "'精确对应'",
+        "type": "toggle",
+        "chars": [
+            "🔲",
+            "✅"
+        ],
+        "default": "🔲"
+    },
+    {
         "name": "languageOptions",
         "viewName": "'语言筛选，形如：[\"chinese\", \"english\"]'",
         "type": "text",
