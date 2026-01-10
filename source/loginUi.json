@@ -1,0 +1,260 @@
+[
+    {
+        "name": "domain",
+        "viewName": "'镜像网址，形如https://xxxx/'",
+        "type": "text",
+        "action": "checkURLInput()"
+    },
+    {
+        "name": "email",
+        "viewName": "'邮箱'",
+        "type": "text"
+    },
+    {
+        "name": "password",
+        "viewName": "'密码'",
+        "type": "password"
+    },
+    {
+        "name": "verifyCode",
+        "viewName": "'验证码'",
+        "type": "text"
+    },
+    {
+        "name": "nickname",
+        "viewName": "'昵称'",
+        "type": "text"
+    },
+    {
+        "name": "filterKeywords",
+        "viewName": "'过滤关键词，形如：[\"关键字1\", \"关键字2\"]'",
+        "type": "text",
+        "default": "[\"成功学\", \"厚黑学\"]",
+        "action": "checkJSONInput()"
+    },
+    {
+        "name": "enterSite",
+        "viewName": "'🌐打开网站主页'",
+        "type": "button",
+        "action": "enterSite()",
+        "style": {
+            "layout_flexGrow": 10,
+            "layout_flexShrink": 1,
+            "layout_alignSelf": "auto",
+            "layout_flexBasisPercent": -1,
+            "layout_wrapBefore": false
+        }
+    },
+    {
+        "name": "enterCurrent",
+        "viewName": "'🌐打开当前书籍网页'",
+        "type": "button",
+        "action": "enterCurrent()",
+        "style": {
+            "layout_flexGrow": 1,
+            "layout_flexShrink": 1,
+            "layout_alignSelf": "auto",
+            "layout_flexBasisPercent": -1,
+            "layout_wrapBefore": false
+        }
+    },
+    {
+        "name": "switchDomain",
+        "viewName": "'🔄切换网址'",
+        "type": "button",
+        "action": "switchDomain()",
+        "style": {
+            "layout_flexGrow": 1,
+            "layout_flexShrink": 1,
+            "layout_alignSelf": "auto",
+            "layout_flexBasisPercent": -1,
+            "layout_wrapBefore": true
+        }
+    },
+    {
+        "name": "updateBookSource",
+        "viewName": "'🆙更新书源'",
+        "type": "button",
+        "action": "java.openUrl('legado://import/bookSource?src=https://pc.sysbbs.com/source/plugin/bphp_clouds/upload/29991/20251117/636e7a33e9a0e8a02a135fc4ff1d1591.json')",
+        "style": {
+            "layout_flexGrow": 1,
+            "layout_flexShrink": 1,
+            "layout_alignSelf": "auto",
+            "layout_flexBasisPercent": -1,
+            "layout_wrapBefore": false
+        }
+    },
+    {
+        "name": "login",
+        "viewName": "'📲登录'",
+        "type": "button",
+        "action": "Login()",
+        "style": {
+            "layout_flexGrow": 1,
+            "layout_flexShrink": 1,
+            "layout_alignSelf": "auto",
+            "layout_flexBasisPercent": -1,
+            "layout_wrapBefore": true
+        }
+    },
+    {
+        "name": "sendCode",
+        "viewName": "'📨发送注册验证码'",
+        "type": "button",
+        "action": "sendCode()",
+        "style": {
+            "layout_flexGrow": 1,
+            "layout_flexShrink": 1,
+            "layout_alignSelf": "auto",
+            "layout_flexBasisPercent": -1,
+            "layout_wrapBefore": true
+        }
+    },
+    {
+        "name": "register",
+        "viewName": "'🪪注册（须验证码）'",
+        "type": "button",
+        "action": "register()",
+        "style": {
+            "layout_flexGrow": 1,
+            "layout_flexShrink": 1,
+            "layout_alignSelf": "auto",
+            "layout_flexBasisPercent": -1,
+            "layout_wrapBefore": false
+        }
+    },
+    {
+        "name": "searchOptions",
+        "viewName": "'搜索选项'",
+        "type": "button",
+        "style": {
+            "layout_flexGrow": 10,
+            "layout_flexShrink": 1,
+            "layout_alignSelf": "auto",
+            "layout_flexBasisPercent": -1,
+            "layout_wrapBefore": true
+        }
+    },
+    {
+        "name": "languageOptions",
+        "viewName": "'语言筛选，形如：[\"chinese\", \"english\"]'",
+        "type": "text",
+        "action": "checkJSONInput()"
+    },
+    {
+        "name": "yearRange",
+        "viewName": "'年份范围，形如：[2000, 2024]'",
+        "type": "text",
+        "action": "checkJSONInput()"
+    },
+    {
+        "name": "extensionOptions",
+        "viewName": "'扩展名筛选，形如：[\"PDF\", \"EPUB\"]'",
+        "type": "text",
+        "action": "checkJSONInput()"
+    },
+    {
+        "name": "contentType",
+        "viewName": "'内容类型'",
+        "type": "select",
+        "chars": [
+            "书籍",
+            "文章",
+            "全部"
+        ],
+        "default": "全部"
+    },
+    {
+        "name": "teenageMode",
+        "viewName": "'青少年模式'",
+        "type": "toggle",
+        "chars": [
+            "🔲",
+            "✅"
+        ],
+        "default": "🔲",
+        "action": "switchTeenageMode()",
+        "style": {
+            "layout_flexGrow": 0,
+            "layout_flexShrink": 1,
+            "layout_alignSelf": "auto",
+            "layout_flexBasisPercent": -1,
+            "layout_wrapBefore": false
+        }
+    },
+    {
+        "name": "doFilter",
+        "viewName": "'关键词过滤'",
+        "type": "toggle",
+        "chars": [
+            "🔲",
+            "✅"
+        ],
+        "default": "🔲",
+        "action": "switchKeywordFilter()",
+        "style": {
+            "layout_flexGrow": 0,
+            "layout_flexShrink": 1,
+            "layout_alignSelf": "auto",
+            "layout_flexBasisPercent": -1,
+            "layout_wrapBefore": false
+        }
+    },
+    {
+        "name": "doCheck",
+        "viewName": "'结果为空时自动打开网页手动检查'",
+        "type": "toggle",
+        "chars": [
+            "🔲",
+            "✅"
+        ],
+        "default": "✅",
+        "action": "switchCheckWebpage()",
+        "style": {
+            "layout_flexGrow": 0,
+            "layout_flexShrink": 1,
+            "layout_alignSelf": "auto",
+            "layout_flexBasisPercent": -1,
+            "layout_wrapBefore": false
+        }
+    },
+    {
+        "name": "logout",
+        "viewName": "'⏏️退出登录（可从源变量恢复）'",
+        "type": "button",
+        "action": "logout()",
+        "style": {
+            "layout_flexGrow": 1,
+            "layout_flexShrink": 1,
+            "layout_alignSelf": "auto",
+            "layout_flexBasisPercent": -1,
+            "layout_wrapBefore": true
+        }
+    },
+    {
+        "name": "relog",
+        "viewName": "'↩️恢复登录'",
+        "type": "button",
+        "action": "relog()",
+        "style": {
+            "layout_flexGrow": 1,
+            "layout_flexShrink": 1,
+            "layout_alignSelf": "auto",
+            "layout_flexBasisPercent": -1,
+            "layout_wrapBefore": false
+        }
+    },
+    {
+        "name": "tool",
+        "viewName": "'开发工具'",
+        "type": "button",
+        "action": "tool()",
+        "style": {
+            "layout_flexGrow": 1,
+            "layout_flexShrink": 1,
+            "layout_alignSelf": "auto",
+            "layout_flexBasisPercent": -1,
+            "layout_wrapBefore": false
+        }
+    }
+]
