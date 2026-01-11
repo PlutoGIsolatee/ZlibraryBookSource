@@ -151,6 +151,16 @@
             "layout_flexBasisPercent": -1,
             "layout_wrapBefore": true
         }
+    },{
+        "name": "contentType",
+        "viewName": "'内容类型'",
+        "type": "select",
+        "chars": [
+            "书籍",
+            "文章",
+            "全部"
+        ],
+        "default": "全部"
     },
     {
         "name": "languageOptions",
@@ -169,17 +179,6 @@
         "viewName": "'扩展名筛选，形如：[\"PDF\", \"EPUB\"]'",
         "type": "text",
         "action": "checkJSONInput()"
-    },
-    {
-        "name": "contentType",
-        "viewName": "'内容类型'",
-        "type": "select",
-        "chars": [
-            "书籍",
-            "文章",
-            "全部"
-        ],
-        "default": "全部"
     },
     {
         "name": "teenageMode",
