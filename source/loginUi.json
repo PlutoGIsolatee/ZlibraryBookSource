@@ -143,7 +143,14 @@
             "🔲",
             "✅"
         ],
-        "default": "🔲"
+        "default": "🔲",
+        "style": {
+            "layout_flexGrow": 0,
+            "layout_flexShrink": 1,
+            "layout_alignSelf": "auto",
+            "layout_flexBasisPercent": -1,
+            "layout_wrapBefore": true
+        }
     },
     {
         "name": "languageOptions",
