@@ -15,7 +15,7 @@ const p = PGIModules;
 
 /**
  * @file smart js module for legado
- * @version 260101.1
+ * @version 260111.1
  * @author PlutoGIsolatee <plutoqweguo@126.com>
  * @license LGPL-2.1.only
  */
@@ -50,14 +50,210 @@ function PGIModules(kitName) {
         }
     }
 
-    return (function () {
+    return (function BasicModule() {
         /**
          * 定义无依赖方法属性
          * =========================
          */
 
         /**
-         * 柯里化
+         * 新增或修改自有数据属性
+         * @param {Object} target 
+         * @param {Object} source 
+         * @param {Object} [descriptor = {}] 数据属性描述符; 应用于全体; 默认{enumerable: false, configurable: false, writable: false}
+         * @param {string} [nameSpace = ""] - 属性名前缀
+         */
+        function defineDataProperties(target, source, descriptor = {}, nameSpace = "") {
+            const des = {};
+            Object.keys(source).forEach((key) => {
+                const k = nameSpace + key;
+                des[k] = { value: source[key] };
+                Object.assign(des[k], descriptor);
+            });
+            Object.defineProperties(target, des);
+        }
+
+        /**
+         * 新增或修改自有存取器属性
+         * @param {Object} target 
+         * @param {Object} source 
+         * @param {Function} [getter = Function.prototype] - 存取器getter函数；参数key
+         * @param {Function} [setter = Function.prototype] - 存取器setter函数；参数key、value
+         * @param {Object} [descriptor = {}] 存取器属性描述符; 应用于全体; 默认{enumerable: false, configurable: false}
+         * @param {string} [nameSpace = ""] - 属性名前缀
+         */
+        function defineAccessorProperties(target, source,
+            getter = Function.prototype, setter = Function.prototype,
+            descriptor = {}, nameSpace = "") {
+            const des = {};
+            Object.keys(source).forEach((key) => {
+                const k = nameSpace + key;
+                des[k] = {
+                    get: function () {
+                        return getter(key);
+                    },
+                    set: function (value) {
+                        setter(key, value);
+                    }
+                };
+                Object.assign(des[k], descriptor);
+            });
+            Object.defineProperties(target, des);
+        }
+
+        /**
+         * URL类封装; 使用java.net.URI实现
+         * @param {string|Object} params - URL字符串或URL参数对象
+         * @param {string} [params.protocol]
+         * @param {string} [params.host]
+         * @param {number} [params.port]
+         * @param {string} [params.path]
+         * @param {string} [params.query]
+         * @param {string} [params.ref]
+         */
+        function URL(params) {
+            const net = Packages.java.net;
+            if (typeof params === "string") {
+                this = new net.URI(params);
+
+            } else if (typeof params === "object") {
+                this = new net.URI(
+                    params.protocol || "http",
+                    null,
+                    params.host || null,
+                    params.port || -1,
+                    params.path || null,
+                    params.query || null,
+                    params.ref || null
+                );
+            }
+        }
+        const descURL = {
+            string: {
+                get: function () {
+                    return this.toASCIIString();
+                }
+            },
+            host: {
+                get: function () {
+                    return this.getHost();
+                },
+                set: function (value) {
+                    this = new Packages.java.net.URI(
+                        this.getScheme(),
+                        null,
+                        value,
+                        this.getPort(),
+                        this.getPath(),
+                        this.getQuery(),
+                        this.getFragment()
+                    );
+                }
+            },
+            protocol: {
+                get: function () {
+                    return this.getScheme();
+                },
+                set: function (value) {
+                    this = new Packages.java.net.URI(
+                        value,
+                        null,
+                        this.getHost(),
+                        this.getPort(),
+                        this.getPath(),
+                        this.getQuery(),
+                        this.getFragment()
+                    );
+                }
+            },
+            port: {
+                get: function () {
+                    return this.getPort();
+                },
+                set: function (value) {
+                    this = new Packages.java.net.URI(
+                        this.getScheme(),
+                        null,
+                        this.getHost(),
+                        value,
+                        this.getPath(),
+                        this.getQuery(),
+                        this.getFragment()
+                    );
+                }
+            },
+            authority: {
+                get: function () {
+                    return this.getAuthority();
+                },
+                set: function (value) {
+                    this = new Packages.java.net.URI(
+                        this.getScheme(),
+                        value,
+                        this.getPath(),
+                        this.getQuery(),
+                        this.getFragment()
+                    );
+                }
+            },
+            path: {
+                get: function () {
+                    return this.getPath();
+                },
+                set: function (value) {
+                    this = new Packages.java.net.URI(
+                        this.getScheme(),
+                        null,
+                        this.getHost(),
+                        this.getPort(),
+                        value,
+                        this.getQuery(),
+                        this.getFragment()
+                    );
+                }
+            },
+            query: {
+                get: function () {
+                    return this.getQuery();
+                },
+                set: function (value) {
+                    this = new Packages.java.net.URI(
+                        this.getScheme(),
+                        null,
+                        this.getHost(),
+                        this.getPort(),
+                        this.getPath(),
+                        value,
+                        this.getFragment()
+                    );
+                }
+            },
+            ref: {
+                get: function () {
+                    return this.getFragment();
+                },
+                set: function (value) {
+                    this = new Packages.java.net.URI(
+                        this.getScheme(),
+                        null,
+                        this.getHost(),
+                        this.getPort(),
+                        this.getPath(),
+                        this.getQuery(),
+                        value
+                    );
+                }
+            }
+        };
+        Object.defineProperties(URL.prototype, descURL);
+
+        /**
+         * 柯里化; 支持占位符curry._
+         * @example
+         * const add = (a, b, c) => a + b + c;
+         * const curriedAdd = curry(add);
+         * curriedAdd(1)(2)(3); // 6
+         * curriedAdd(curry._, 2)(1)(3); // 6
          * @param {Function} fn
          * @param {Object} [thisArg = null]
          * @return {Function}
@@ -95,9 +291,25 @@ function PGIModules(kitName) {
 
         curry._ = Symbol('curry_placeholder');
 
+        /**
+         * 检查字符串为合法JSON
+         * @param {string} input
+         * @param {Function} [errorCallback = Function.prototype] - 出错回调
+         * @returns {JSON}
+         */
+        function checkJSON(input, errorCallback = Function.prototype) {
+            try {
+                return JSON.parse(input);
+            } catch (e) {
+                errorCallback();
+                throw e;
+            }
+        }
+
+
 
         /**
-         * 较安全的类型转换；对于JAVA对象调用其toString方法
+         * 较安全的类型转换; 对于JAVA对象调用其toString方法
          * @param {any} obj
          * @returns {string}
          */
@@ -109,14 +321,16 @@ function PGIModules(kitName) {
             );
         }
 
+        const TRUNCATE_MIDDLE_DEFAULT_MAXLENGTH = 2000;
+
         /**
          * 字符串限长，从中央以省略标识代替超字数部分
          * @param {any} source
-         * @param {number} [maxLength = 500]
+         * @param {number} [maxLength = TRUNCATE_MIDDLE_DEFAULT_MAXLENGTH]
          * @param {string} [ellipsis = "'\n......\n'"] 省略标识
          * @returns {string}
          */
-        function truncateMiddle(source, maxLength = 500, ellipsis = '\n......\n') {
+        function truncateMiddle(source, maxLength = TRUNCATE_MIDDLE_DEFAULT_MAXLENGTH, ellipsis = '\n......\n') {
             var str = objectToString(source);
             if (str.length <= maxLength) {
                 return str;
@@ -133,30 +347,31 @@ function PGIModules(kitName) {
         }
 
         /**
-         *拼接相对链接
-         *@param {string} baseurl - 基准URL
-         *@param {string} relativePath - 相对URL
+         *拼接相对路径; 使用java.net.URI实现
+         *@param {string} base - 基准路径
+         *@param {string} relativePath - 相对路径
          *@return {string} 绝对URL
          */
-        function getAbsoluteUrl(relativePath, baseurl) {
-            if (baseurl.endsWith("/") && relativePath.startsWith("/")) {
-                return baseurl.slice(0, -1) + relativePath;
-            } else if (!baseurl.endsWith("/") && !relativePath.startsWith("/")) {
-                return baseurl + "/" + relativePath;
-            } else {
-                return baseurl + relativePath;
-            }
+        function getAbsolutePath(relativePath, baseUrl) {
+            const URI = Packages.java.net.URI;
+            const base = new URI(baseUrl),
+                relative = new URI(relativePath);
+            const resolved = base.resolve(relative);
+            return resolved.toASCIIString();
         }
+
+        const ERROR_TO_STRING_DEFAULT_MAX_DEPTH = 10;
+        const ERROR_TO_STRING_DEFAULT_MAX_MESSAGE_LENGTH = 2000;
 
         /**
          * Error转string；实现了自定义ExtraMessage属性用于额外堆栈描述
          * @param {Error} error
-         * @param {number} [maxDepth = 10] - cause栈遍历深度限度
-         * @param {number} [maxMessageLength = 2000]
+         * @param {number} [maxDepth = ERROR_TO_STRING_DEFAULT_MAX_DEPTH] - cause栈遍历深度限度
+         * @param {number} [maxMessageLength = ERROR_TO_STRING_DEFAULT_MAX_MESSAGE_LENGTH]
          * @returns {string} 形如Error: msg\nextraMessage\n<= Error: msg\nextraMessage\n...
          * @throws {TypeError} 首个参数应为Error类型
          */
-        function errorToString(error, maxDepth = 5, maxMessageLength = 2000) {
+        function errorToString(error, maxDepth = ERROR_TO_STRING_DEFAULT_MAX_DEPTH, maxMessageLength = ERROR_TO_STRING_DEFAULT_MAX_MESSAGE_LENGTH) {
             if (!(error instanceof Error)) {
                 let er = new TypeError("errorToString 首个参数应为Error类型");
                 throw er;
@@ -205,18 +420,27 @@ function PGIModules(kitName) {
         }
 
 
+        function basicModule() {
+            //留待扩展
+        }
 
-        const basicModule = {
-            //注册无依赖方法属性
-            objectToString,
-            getAbsoluteUrl,
-            truncateMiddle,
-            errorToString,
-            curry
-        };
+        defineDataProperties(
+            basicModule,
+            {
+                //注册无依赖方法属性
+                objectToString,
+                getAbsolutePath,
+                truncateMiddle,
+                errorToString,
+                curry,
+                defineAccessorProperties,
+                defineDataProperties,
+                checkJSON
+            }
+        );
 
 
-        return (function () {
+        return (function GeneralModule() {
 
             const generalModule = Object.create(basicModule);
 
@@ -224,6 +448,66 @@ function PGIModules(kitName) {
              * 定义使用通用API方法属性
              * =========================
              */
+
+            /**
+             * 检查字符串为合法URL; 使用java.toURL方法
+             * @param {string} input
+             * @param {Function} [errorCallback = Function.prototype] - 出错回调
+             * @returns {string}
+             */
+            function checkURL(input, errorCallback = Function.prototype) {
+                try {
+                    java.toURL(input);
+                    return input;
+                } catch (e) {
+                    errorCallback();
+                    throw e;
+                }
+            }
+
+            const OUTPUT_MAX_LENGTH = 10000;
+
+            /**
+             * 日志
+             * @param {...any} messageSources
+             */
+            function log(...messageSources) {
+                java.log(
+                    truncateMiddle(
+                        messageSources
+                            .map(objectToString)
+                            .join("\n"),
+                        OUTPUT_MAX_LENGTH)
+                );
+            }
+
+            /**
+             * toast
+             * @param {...any} messageSources
+             */
+            function toast(...messageSources) {
+                java.toast(
+                    truncateMiddle(
+                        messageSources
+                            .map(objectToString)
+                            .join("\n"),
+                        OUTPUT_MAX_LENGTH)
+                );
+            }
+
+            /**
+             * longToast
+             * @param {...any} messageSources
+             */
+            function longToast(...messageSources) {
+                java.longToast(
+                    truncateMiddle(
+                        messageSources
+                            .map(objectToString)
+                            .join("\n"),
+                        OUTPUT_MAX_LENGTH)
+                );
+            }
 
             /**
              * toast、日志
@@ -235,7 +519,7 @@ function PGIModules(kitName) {
                         messageSources
                             .map(objectToString)
                             .join("\n"),
-                        10000)
+                        OUTPUT_MAX_LENGTH)
                 ));
             }
 
@@ -249,20 +533,21 @@ function PGIModules(kitName) {
                         messageSources
                             .map(objectToString)
                             .join("\n"),
-                        10000)
+                        OUTPUT_MAX_LENGTH)
                 ));
             }
 
             /**
              * 源变量初始值
              */
-            const initialSourceVariable = {
+            const INITIAL_SOURCE_VARIABLE = {
                 user_id: 0,
                 user_key: "",
                 baseUrl: "https://zh.pkuedu.online/",
                 filter: [],
                 doFilter: true,
-                doCheck: true
+                doCheck: true,
+                storage: {}
             };
 
             /**
@@ -277,10 +562,10 @@ function PGIModules(kitName) {
                     }
                     return JSON.parse(v);
                 } catch {
-                    let va = initialSourceVariable;
-                    source.setVariable(JSON.stringify(va));
+                    let v = INITIAL_SOURCE_VARIABLE;
+                    source.setVariable(JSON.stringify(v));
                     java.log("已重置源变量");
-                    return va;
+                    return v;
                 }
             }
 
@@ -306,6 +591,10 @@ function PGIModules(kitName) {
                 var va = checkVariable();
                 return va[key];
             }
+
+            const WRAPPER_DEFAULT_MAX_ERROR_MESSAGE_LENGTH = ERROR_TO_STRING_DEFAULT_MAX_MESSAGE_LENGTH;
+            const WRAPPER_DEFAULT_MAX_RETURN_STRING_LENGTH = 2000;
+            const WRAPPER_DEFAULT_MAX_ERROR_DEPTH = ERROR_TO_STRING_DEFAULT_MAX_DEPTH;
 
             /**
              * 包装函数，错误处理
@@ -334,7 +623,10 @@ function PGIModules(kitName) {
                 msg = null,
                 position = null,
                 isTerminal = false,
-                isUserCall = false
+                isUserCall = false,
+                maxErrorMessageLength = WRAPPER_DEFAULT_MAX_ERROR_MESSAGE_LENGTH,
+                maxErrorDepth = WRAPPER_DEFAULT_MAX_ERROR_DEPTH,
+                maxReturnStringLength = WRAPPER_DEFAULT_MAX_RETURN_STRING_LENGTH
             }) {
                 try {
                     if ((typeof func) !== "function") {
@@ -347,7 +639,7 @@ function PGIModules(kitName) {
                     try {
                         var funcResult = func.apply(funcThis || this, params);
 
-                        const funcStr = truncateMiddle(funcResult, 1000);
+                        const funcStr = truncateMiddle(funcResult, maxReturnStringLength);
                         if (log) {
                             java.log(funcStr);
                         }
@@ -371,7 +663,7 @@ function PGIModules(kitName) {
                         (position ? `\n在${position}` : "")
                     ).trim();
                     if (isUserCall || isTerminal) {
-                        longToastLog(errorToString(error));
+                        longToastLog(errorToString(error, maxErrorDepth, maxErrorMessageLength));
                     }
                     throw error;
                 }
@@ -407,7 +699,7 @@ function PGIModules(kitName) {
                         method,
                         useWebView
                     }, otherParams));
-                    url = getAbsoluteUrl(`${relativePath},${urlparams}`, baseurl);
+                    url = getAbsolutePath(`${relativePath},${urlparams}`, baseurl);
                 }
                 java.log(`尝试发送请求${url}`);
                 return java.ajax(url);
@@ -530,66 +822,80 @@ function PGIModules(kitName) {
             }
 
             /**
+             * 拼接相对地址
              * @param {string} relativePath
-             * @param {string} [baseurl = generalModule.baseUrl]
+             * @param {string} [base = generalModule.baseUrl]
+             * @returns {string}
              */
-            function getAbsoluteUrl(relativePath, baseurl = generalModule.baseUrl) {
-                return basicModule.getAbsoluteUrl(relativePath, baseurl);
+            function getAbsolutePath(relativePath, base = generalModule.baseUrl) {
+                return basicModule.getAbsolutePath(relativePath, base);
             }
 
             /**
-             * 从initialSourceVariable批量添加动态属性到generalModule；默认不可枚举、配置
+             * 获取登录信息
+             * @param {string} name 
+             * @returns {java.lang.String}
              */
-            const descriptors = {};
-            Object.keys(initialSourceVariable).forEach((key) => {
-                descriptors[key] = {
-                    get() {
-                        return getVariableValue(key);
-                    },
-                    set(value) {
-                        setVariableValue(key, value);
-                    }
-                };
-            });
-            Object.defineProperties(generalModule, descriptors);
+            function getLoginInfo(name) {
+                return source.getLoginInfoMap().get(name);
+            }
 
             /**
-             * 从登录信息批量添加动态属性到generalModule；默认不可枚举、配置;在loginUrlModule中会被对应即时属性屏蔽
+             * 设置登录信息
+             * @param {string} name 
+             * @param {string} value 
              */
-            const descriptors2 = {};
-            Object.keys(source.getLoginInfoMap()).forEach((key) => {
-                descriptors2[key] = {
-                    get() {
-                        return getVariableValue(key);
-                    },
-                    set(value) {
-                        setVariableValue(key, value);
-                    }
-                };
-            });
-            Object.defineProperties(generalModule, descriptors2);
+            function setLoginInfo(name, value) {
+                source.getLoginInfoMap().put(name, objectToString(value));
+            }
 
-            Object.assign(generalModule, {
-                //注册使用通用API方法属性
-                initialSourceVariable,
-                checkVariable,
-                setVariableValue,
+            /**
+             * 从INITIAL_SOURCE_VARIABLE批量添加动态属性到generalModule；默认不可枚举、配置
+             */
+
+            defineAccessorProperties(
+                generalModule,
+                INITIAL_SOURCE_VARIABLE,
                 getVariableValue,
-                longToastLog,
-                toastLog,
-                wrapper,
-                requestResponse,
-                jsoupParse,
-                getElementsByJsoupCSS,
-                getElementByJsoupCSS,
-                getStringByJsoupCSS,
-                getStringListByJsoupCSS,
-                shellHTML,
-                enterCurrentWebpage,
-                getAbsoluteUrl,
-                enterCurrentBook
-            });
+                setVariableValue
+            );
 
+            /**
+             * 从登录信息批量添加动态属性到generalModule；默认不可枚举、配置; 在loginUrlModule中会被对应即时属性屏蔽; 使用log_前缀区分
+             */
+            defineAccessorProperties(
+                generalModule,
+                source.getLoginInfoMap(),
+                getLoginInfo,
+                setLoginInfo,
+                "log_"
+            );
+
+            defineDataProperties(
+                generalModule,
+                {
+                    //注册使用通用API方法属性
+                    INITIAL_SOURCE_VARIABLE,
+                    checkVariable,
+                    setVariableValue,
+                    getVariableValue,
+                    longToastLog,
+                    toastLog,
+                    wrapper,
+                    requestResponse,
+                    jsoupParse,
+                    getElementsByJsoupCSS,
+                    getElementByJsoupCSS,
+                    getStringByJsoupCSS,
+                    getStringListByJsoupCSS,
+                    shellHTML,
+                    enterCurrentWebpage,
+                    getAbsolutePath,
+                    enterCurrentBook,
+                    setLoginInfo,
+                    getLoginInfo
+                }
+            );
 
 
 
@@ -681,7 +987,7 @@ function PGIModules(kitName) {
                          * @param {Element} [getBookInfoListParams.content] - 重新设置解析内容
                          * @param {string} [bookListUrl] - 书籍列表网址
                          * @param {Array<string>} [getBookInfoListParams.xxxSelectors = []] - 选择器数组，应当显式标识规则类型
-                         * @return {Array<Object>} 书籍信息列表
+                         * @returns {Array<Object>} 书籍信息列表
                          */
                         function getBookInfoList({
                             content = null,
@@ -747,46 +1053,96 @@ function PGIModules(kitName) {
                         }
 
 
+                        defineDataProperties(
+                            analyzeRuleModule,
+                            {
+                                //注册analyzeRuleModule独有方法属性
 
-                        Object.assign(analyzeRuleModule, {
-                            //注册analyzeRuleModule独有方法属性
-
-                            getStringByOr,
-                            getElementsByOr,
-                            getBookInfoList
-                        });
+                                getStringByOr,
+                                getElementsByOr,
+                                getBookInfoList
+                            }
+                        );
 
                         return analyzeRuleModule;
                     })();
                 }
                 case "loginUrl": {
                     return (function () {
+
+                        /**
+                         * 检查输入值为JSON，如是则保存; 用于登录UI text控件action输入检查
+                         * @param {string} input 
+                         * @returns {JSON}
+                         */
+                        function checkJSONInput(input) {
+                            return wrapper({
+                                func: checkJSON,
+                                params: [input],
+                                msg: "请按正确格式输入",
+                                isUserCall: true
+                            });
+                        }
+
+                        /**
+                         * 检查输入值为URL，如是则保存; 用于登录UI text控件action输入检查
+                         * @param {string} input 
+                         * @returns {string}
+                         */
+                        function checkURLInput(input) {
+                            return wrapper({
+                                func: checkURL,
+                                params: [input],
+                                msg: "请按正确格式输入",
+                                isUserCall: true
+                            });
+                        }
+
+
+                        /**
+                         * 获取即时登录UI控件值
+                         * @param {string} name - 键名 
+                         * @returns {java.lang.String}
+                         */
                         function getCurrentLoginInfo(name) {
                             return result.get(name);
+                        }
+
+                        /**
+                         * 设置登录键值并更新登录UI
+                         * @param {string} name 
+                         * @param {string} value 
+                         */
+                        function setCurrentLoginInfo(name, value) {
+                            java.upLoginData({
+                                [name]: objectToString(value)
+                            });
                         }
 
                         const loginUrlModule = Object.create(generalModule);
 
                         /**
-                         * 从登录result批量添加动态属性到loginUrlModule；默认不可枚举、配置；会屏蔽来自generalModule中的同名属性
+                         * 从登录result批量添加动态属性到loginUrlModule；默认不可枚举、配置; 会屏蔽来自generalModule中的同名属性; 使用log_前缀区分
                          */
-                        const descriptors = {};
-                        Object.keys(result).forEach((key) => {
-                            descriptors[key] = {
-                                get() {
-                                    return getVariableValue(key);
-                                },
-                                set(value) {
-                                    setVariableValue(key, value);
-                                }
-                            };
-                        });
-                        Object.defineProperties(loginUrlModule, descriptors);
+                        defineAccessorProperties(
+                            loginUrlModule,
+                            result,
+                            getCurrentLoginInfo,
+                            setCurrentLoginInfo,
+                            "log_"
+                        );
 
-                        Object.assign(loginUrlModule, {
-                            //注册loginUrlModule独有方法属性
-                            getCurrentLoginInfo
-                        })
+
+                        defineDataProperties(
+                            loginUrlModule,
+                            {
+                                //注册loginUrlModule独有方法属性
+                                getCurrentLoginInfo,
+                                setCurrentLoginInfo,
+                                checkJSONInput,
+                                checkURLInput
+                            }
+                        );
 
                         return loginUrlModule;
                     })();
